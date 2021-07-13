@@ -15,7 +15,6 @@ platforminit = 0
 brokenlist = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
 movinglist = []
 
-#banana
 WIDTH = 1000
 HEIGHT = 700
 #if __name__ == '__main__':
@@ -30,6 +29,7 @@ playerlegs._update_pos()
 dead = 0
 
 #platform
+platformDirection = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 updateplatform = 0
 platform1 = Actor('platform1')#sorry mr chew apparently blit doesnt want to cooperate
 platform2 = Actor('platform1')
@@ -106,8 +106,6 @@ def draw():
     global red, blue, green
     global cycle1, cycle2, cycle3, cycle4, cycle5, cycle6
     global platforminit, gameinit, textdisplay, character
-    if pause == 1:
-        print("infinite")
     screen.fill((red, blue, green))  #background refresh
     if cycle1 == 1:
         green += 1
@@ -218,7 +216,7 @@ def gameinit():
     game_play = 1
 def game():
     global touched1, touched2, touched3, touched4, touched5, touched6, touched7, touched8, touched9
-    global gameinit, gameplay, gameplay, dead, score, game_play, highscore, updateplatform
+    global gameinit, gameplay, gameplay, dead, score, game_play, highscore, updateplatform, platformDirection
     global xvelo, yvelo, yscoll, toptile, holdlength, toptile, xdiff
     toggleleft = 0
     toggleright = 0
@@ -335,51 +333,88 @@ def game():
             dead = 1
         #platformproperties-moving
         direction = 0
+
         if platform1.image == "platform2":
-            if platform1.x == 20:
+            if platformDirection[0] == 0:
                 platform1.x += 5 * (xdiff/5)
-            elif platform1.x == 980:
+                if platform1.x > 980:
+                    platformDirection[0] = 1
+            elif platformDirection[0] == 1:
                 platform1.x -= 5 * (xdiff/5)
+                if platform1.x < 20:
+                    platformDirection[0] = 0
         if platform2.image == "platform2":
-            if platform2.x == 20:
+            if platformDirection[1] == 0:
                 platform2.x += 5 * (xdiff/5)
-            elif platform1.x == 980:
+                if platform2.x > 980:
+                    platformDirection[1] = 1
+            elif platformDirection[1] == 1:
                 platform2.x -= 5 * (xdiff/5)
+                if platform2.x < 20:
+                    platformDirection[1] = 0
         if platform3.image == "platform2":
-            if platform3.x == 20:
+            if platformDirection[2] == 0:
                 platform3.x += 5 * (xdiff/5)
-            elif platform3.x == 980:
+                if platform3.x > 980:
+                    platformDirection[2] = 1
+            elif platformDirection[2] == 1:
                 platform3.x -= 5 * (xdiff/5)
+                if platform3.x < 20:
+                    platformDirection[2] = 0
         if platform4.image == "platform2":
-            if platform4.x == 20:
+            if platformDirection[3] == 0:
                 platform4.x += 5 * (xdiff/5)
-            elif platform4.x == 980:
+                if platform4.x > 980:
+                    platformDirection[3] = 1
+            elif platformDirection[3] == 1:
                 platform4.x -= 5 * (xdiff/5)
+                if platform4.x < 20:
+                    platformDirection[3] = 0
         if platform5.image == "platform2":
-            if platform5.x == 20:
+            if platformDirection[4] == 0:
                 platform5.x += 5 * (xdiff/5)
-            elif platform5.x == 980:
+                if platform5.x > 980:
+                    platformDirection[4] = 1
+            elif platformDirection[4] == 1:
                 platform5.x -= 5 * (xdiff/5)
+                if platform5.x < 20:
+                    platformDirection[4] = 0
         if platform6.image == "platform2":
-            if platform6.x == 20:
+            if platformDirection[5] == 0:
                 platform6.x += 5 * (xdiff/5)
-            elif platform6.x == 980:
+                if platform6.x > 980:
+                    platformDirection[5] = 1
+            elif platformDirection[5] == 1:
                 platform6.x -= 5 * (xdiff/5)
+                if platform6.x < 20:
+                    platformDirection[5] = 0
         if platform7.image == "platform2":
-            if platform7.x == 20:
+            if platformDirection[6] == 0:
                 platform7.x += 5 * (xdiff/5)
-            elif platform7.x == 980:
+                if platform7.x > 980:
+                    platformDirection[6] = 1
+            elif platformDirection[6] == 1:
                 platform7.x -= 5 * (xdiff/5)
+                if platform7.x < 20:
+                    platformDirection[6] = 0
         if platform8.image == "platform2":
-            if platform8.x == 20:
+            if platformDirection[7] == 0:
                 platform8.x += 5 * (xdiff/5)
-            elif platform8.x == 980:
+                if platform8.x > 980:
+                    platformDirection[7] = 1
+            elif platformDirection[7] == 1:
                 platform8.x -= 5 * (xdiff/5)
+                if platform8.x < 20:
+                    platformDirection[7] = 0
         if platform9.image == "platform2":
-            if platform9.x == 20:
+            if platformDirection[8] == 0:
                 platform9.x += 5 * (xdiff/5)
-            elif platform9.x == 980:
+                if platform9.x > 980:
+                    platformDirection[8] = 1
+            elif platformDirection[8] == 1:
                 platform9.x -= 5 * (xdiff/5)
+                if platform9.x < 20:
+                    platformDirection[8] = 0
     if dead == 1:
         yvelo -= 0.2
         playerlegs.y += yvelo
@@ -396,8 +431,6 @@ def game():
             animate(platform9, tween = 'accelerate', duration= 3, pos=(platform9.x, -20))
             updateplatform = 1
         if platform8.y == -30:
-            print(score)
-            print(highscore, "high")
             if score > int(highscore):
                 highscore = score
                 f = open("score.txt", "w")
@@ -456,15 +489,11 @@ def refresh():
         for x in range(9):
             moving = random.randint(0, 15 - xdiff)
             movinglist.append(moving)
-        print(movinglist)
     if xdiff >= 3:
-        print("broken")
-        print(brokenlist)
         brokenlist = []
         for x in range(9):
             broken = random.randint(0, 25 - xdiff)
             brokenlist.append(broken)
-        print(brokenlist)
     if xdiff >= 2:
         if movinglist[0] == 0:
             platform1.image = "platform2"
@@ -529,6 +558,3 @@ def jump():
     global xvelo, yvelo, playerlegs, score
     yvelo = -10
     playerlegs.image = 'playerlegs1'
-
-#def settings():
-    #no

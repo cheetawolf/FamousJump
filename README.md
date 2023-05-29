@@ -2,7 +2,7 @@
 
 ### Completed: September 2020
 
-#About
+# About
 A Pygame Zero project I self-taught and completed in 3 days while I was bored in the hospital. Here is the outcome.
 FamousJump is a platformer game featuring famous celebrities jumping up the various challenges as the game progresses because it is funny. Who doesn't want to see the Queen jumping up some stairs?!
 

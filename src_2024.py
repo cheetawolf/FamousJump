@@ -2,13 +2,14 @@
 # https://github.com/speckly
 # FamousJump, 15 March 2024
 
+# BUG: platforms 7,8,9 are below screen, there are overlapping broken/moving because both are in a list
+
 import random
 from os import path
 
 #modes
 game_play = 0
 dead = 0
-settings = 0
 character = 0
 platforminit = 0
 brokenlist = [50] * 9
@@ -43,15 +44,11 @@ xdiff = 1 #multiplier of how xvelo changes
 xvelo = 0 #velocities
 yvelo = 0
 holdlength = 0
-#screenrefresh
-is_refresh = 0
-toptile = 0
 score = 0
 red = 255 #bg colors
 green = 0
 blue = 0
 cycle = [1] + [0] * 5
-#score
 highscore = 0
 
 if path.exists("score.txt"):
@@ -72,7 +69,6 @@ else:
 
 
 def draw():
-    global toptile
     global playerlegs, player
     global red, blue, green
     global cycle
@@ -143,8 +139,7 @@ def mainmenu():
     playerlegs.pos = 500, 300
 
 def gameinit():
-    global refresh, platforms
-    global game_play
+    global refresh, platforms, game_play
     xspawn = []
     toptile = [random.randint(50, 100)]
     for i, platform in enumerate(platforms):
@@ -157,8 +152,7 @@ def gameinit():
     game_play = 1
 
 def game():
-    global touched, score, game_play, highscore, platformDirection
-    global xvelo, yvelo, yscoll, holdlength, xdiff, dead
+    global touched, score, game_play, highscore, platformDirection, xvelo, yvelo, yscoll, holdlength, dead
     toggleleft = 0
     toggleright = 0
     playbutton.pos = -1000, 500
@@ -179,7 +173,7 @@ def game():
         #pacman mechanic idk
         if playerlegs.x < -20:
             playerlegs.x = 1020
-        if playerlegs.x > 1020:
+        elif playerlegs.x > 1020:
             playerlegs.x = -20
         #kontol
         if keyboard.left:
@@ -248,9 +242,7 @@ def dead_ani():
     #         animate(platform, tween = 'accelerate', duration=3, pos=(platform.x, -100))
 
 def refresh():
-    global yvelo
-    global xdiff
-    global touched, brokenlist, movinglist
+    global yvelo, touched, brokenlist, movinglist
     playerlegs.y = 698
     yvelo = -9
     xspawn = []
@@ -271,32 +263,26 @@ def refresh():
         platform.pos = xspawn[i], toptile[i]
     platforms[-1].x = playerlegs.x # easy transition
 
-    xtrans = playerlegs.x
-    if playerlegs.x < 20:
-        xtrans = 30
-    if playerlegs.x > 980:
-        xtrans = 960
-    if xdiff >= 2:
-        movinglist = [] #init
-        for x in range(9):
-            moving = random.randint(0, 15 - xdiff)
-            movinglist.append(moving)
     if xdiff >= 3:
         brokenlist = []
         for x in range(9):
             broken = random.randint(0, 25 - xdiff)
             brokenlist.append(broken)
-    if xdiff >= 2:
+    elif xdiff >= 2:
+        movinglist = [] #init
+        for x in range(9):
+            moving = random.randint(0, 15 - xdiff)
+            movinglist.append(moving)
         for i, platform in enumerate(platforms):
             if movinglist[i] == 0:
                 platform.image = "platform2"
             elif brokenlist[i] == 0:
                 platform.image = "platform3"
             else:
-                platform.image = "platform1"
+                platform.image = "platform1"        
 
 def jump():
-    global yvelo, playerlegs
+    global yvelo
     yvelo = -10
     playerlegs.image = 'playerlegs1'
 

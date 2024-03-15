@@ -11,7 +11,7 @@ dead = 0
 settings = 0
 character = 0
 platforminit = 0
-brokenlist = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+brokenlist = [50] * 9
 movinglist = []
 
 WIDTH = 1000
@@ -24,7 +24,7 @@ playerlegs.pos = 500, 300 #actually show doesnt work
 playerlegs._update_pos()
 
 #platform
-platformDirection = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+platformDirection = [0] * 9
 platforms = []
 for i in range(9):
     platform = Actor('platform1')
@@ -55,18 +55,21 @@ cycle = [1] + [0] * 5
 highscore = 0
 
 if path.exists("score.txt"):
-    f = open("score.txt", "r") #normally saved in C:\Users\user_name\mu_code
-    highscore = f.read()
+    with open("score.txt") as f: #normally saved in C:\Users\user_name\mu_code
+        highscore = f.read()
+    
+    if not highscore.isdigit():
+        with open("score.txt", "w") as f:
+            f.write("0")
+            highscore = 0
+    else:
+        highscore = int(highscore)
 else:
-    f = open("score.txt", "w")
-    f.write("0")
-f.close()
+    with open("score.txt", "w") as f:
+        f.write("0")
+        highscore = 0
 
-if not highscore.isdigit():
-    f = open("score.txt", "w")
-    f.write("0")
-    highscore = 0
-    f.close()
+
 
 def draw():
     global toptile
@@ -133,11 +136,8 @@ def update():
         dead_ani()
 
 def mainmenu():
-    global game_play, dead, yvelo, xdiff
-    xdiff = 0
-    yvelo = 0
-    dead = 0
-    game_play = 0
+    global game_play, dead, yvelo, xdiff, score
+    game_play = dead = yvelo = xdiff = score = 0
     playbutton.pos = 200, 500
     characterbutton.pos = 800, 500
     playerlegs.pos = 500, 300
@@ -236,7 +236,7 @@ def dead_ani():
     playerlegs.y += yvelo
     playerlegs._update_pos()
     if platforms[8].y == -100:
-        if score > int(highscore):
+        if score > highscore:
             highscore = score
             with open("score.txt", "w") as f:
                 f.write(str(score))
@@ -265,7 +265,8 @@ def refresh():
         xspawn.append(newxspawn)
         
         # list of y coordinates
-        toptile.append(toptile[x] if x != 0 else  + random.randint(90,100))
+        toptile.append(toptile[x] + random.randint(90,100))
+    
     for i, platform in enumerate(platforms):
         platform.pos = xspawn[i], toptile[i]
     platforms[-1].x = playerlegs.x # easy transition

@@ -12,7 +12,6 @@ charIDX = 0
 WIDTH = 1000
 HEIGHT = 700
 
-#player
 player = Actor('mrchew', anchor=('center', 'bottom'))
 playerlegs = Actor('playerlegs', anchor=('center', 'bottom'))
 playerlegs.pos = 500, 300
@@ -20,7 +19,6 @@ playerlegs._update_pos()
 
 platformDirection = [0] * 9
 platforms = []
-wait = False
 for i in range(9):
     platform = Actor('platform1')
     platform.pos = -1000, 0
@@ -68,7 +66,7 @@ def game():
             game_play = 0
             dead = 1
             for platform in platforms:
-                animate(platform, tween = 'accelerate', duration=3, pos=(platform.x, -100))
+                animate(platform, tween='accelerate', duration=3, pos=(platform.x, -100))
             return
 
         yvelo += 0.275
@@ -109,7 +107,6 @@ def game():
             scale = (0 if 0 < yvelo < 10 else yvelo // 2)
             for i, platform in enumerate(platforms):
                 # The yvelo can be too high and therefore overshoot this boundary, require scaling
-                
                 if platform.y + (10 + scale) > playerlegs.y > platform.y and platform.x - 75 < playerlegs.x < platform.x + 75:
                     yvelo = -10 # Jump
                     playerlegs.image = 'playerlegs1'
@@ -117,14 +114,12 @@ def game():
                         score += 1
                         touched[i] = 1
                     if platform.image == "platform3":
-                        animate(platform, tween = 'out_elastic', pos=(-100, 400))
-        if playerlegs.y < 350 and not wait:
-            wait = True
-            if xdiff < 100:
+                        animate(platform, tween='out_elastic', pos=(platform.x, -1000))
+
+        if playerlegs.y < 0:
+            if xdiff < 40:
                 xdiff += 1
-            scroll()
-        else:
-            wait = False
+            refresh()
 
 def refresh():
     global yvelo, xspawn, yspawn
@@ -142,36 +137,20 @@ def refresh():
         platform.pos = xspawn[i], yspawn[i]
     
     platforms[0].x = playerlegs.x # easy transition
-    if xdiff >= 50:
+    if xdiff >= 20:
         for platform in platforms:
-            if not random.randint(0, 101 - xdiff): # chance of broken
-                platform.image = "platform3"
-    elif xdiff >= 25:
+            if not random.randint(0, 75 - xdiff): # chance of moving
+                platform.image = "platform2"
+    elif xdiff >= 10:
         for platform in platforms:
-            if not random.randint(0, 120 - xdiff): # chance of moving
-                platform.image = "platform2"
-
-def scroll():
-    global yvelo, xspawn, yspawn
-
-    for i, platform in enumerate(platforms): 
-        platform.y += 3
-        if platform.y > 710:
-            if xdiff >= 50 and not random.randint(0, 101 - xdiff): # chance of broken
+            if not random.randint(0, 40 - xdiff): # chance of broken
                 platform.image = "platform3"
-            elif xdiff >= 30 and not random.randint(0, 120 - xdiff): # chance of moving
-                platform.image = "platform2"
-            newx = random.randint(50, 950)
-            newy = platforms[-1].y - random.randint(80, 95)
-            platform.pos = newx, newy
-            platforms.append(platforms.pop(i))
 
 def draw():
-    global playerlegs, player, red, blue, green, cycle
+    global playerlegs, player, red, blue, green, cycle, xdiff
 
     """The index of the color being changed (0 for red, 1 for green, and 2 for blue).
     The direction of the change (-1 for decreasing, 1 for increasing)."""
-    
     color_changes = [(1, 1), (0, -1), (2, 1), (1, -1), (0, 1), (2, -1)]
     for i in range(len(cycle)):
         if cycle[i] == 1:
@@ -198,7 +177,8 @@ def draw():
     characters = ["mrchew", "trump", "queen", "osama"]
     player = Actor(characters[charIDX], anchor=('center', 'bottom'))
     screen.draw.text(f"Your score: {score}", (10, 20), color="#AAFF00", gcolor="#66AA00", owidth=1.5, ocolor="black", alpha=0.8, shadow=(1,1))
-    screen.draw.text(f"Your highscore: {highscore}", (10, 40), color="#AAFF00", gcolor="#66AA00", owidth=1.5, ocolor="black", alpha=0.8, shadow=(1,1))
+    screen.draw.text(f"Your stage: {xdiff}", (10, 40), color="#AAFF00", gcolor="#66AA00", owidth=1.5, ocolor="black", alpha=0.8, shadow=(1,1))
+    screen.draw.text(f"Your highscore: {highscore}", (10, 60), color="#AAFF00", gcolor="#66AA00", owidth=1.5, ocolor="black", alpha=0.8, shadow=(1,1))
 
 def on_mouse_down(pos):
     global game_play, charIDX

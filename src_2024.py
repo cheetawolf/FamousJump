@@ -1,6 +1,6 @@
 # Author: Andrew Higgins
 # https://github.com/speckly
-# FamousJump, 15 March 2024
+# FamousJump, 15 and 16 March 2024
 
 import random
 from os import path
@@ -8,7 +8,6 @@ from os import path
 game_play = 0
 dead = 0
 charIDX = 0
-platforminit = 0
 
 WIDTH = 1000
 HEIGHT = 700
@@ -16,11 +15,12 @@ HEIGHT = 700
 #player
 player = Actor('mrchew', anchor=('center', 'bottom'))
 playerlegs = Actor('playerlegs', anchor=('center', 'bottom'))
-playerlegs.pos = 500, 300 #actually show doesnt work
+playerlegs.pos = 500, 300
 playerlegs._update_pos()
 
 platformDirection = [0] * 9
 platforms = []
+wait = False
 for i in range(9):
     platform = Actor('platform1')
     platform.pos = -1000, 0
@@ -28,14 +28,14 @@ for i in range(9):
 touched = [0] * 9
 
 playbutton = Actor('playbutton')
-playbutton.pos = 200, 500 #middle
+playbutton.pos = 200, 500 # middle
 playbutton._update_pos()
 characterbutton = Actor('characterbutton')
-characterbutton.pos = 800, 500 #right middle
+characterbutton.pos = 800, 500 # right middle
 characterbutton._update_pos()
 
-xdiff = 1 #multiplier of how xvelo changes
-xvelo = 0 #velocities
+xdiff = 1 # multiplier of how xvelo changes and moving platform speed
+xvelo = 0 # velocities
 yvelo = 0
 holdlength = 0
 
@@ -61,11 +61,8 @@ else:
         f.write("0")
         highscore = 0
 
-
-
-
 def game():
-    global touched, score, game_play, highscore, platformDirection, xvelo, yvelo, holdlength, dead, xdiff
+    global touched, score, game_play, highscore, platformDirection, xvelo, yvelo, holdlength, dead, xdiff, wait
     if game_play == 1:
         if playerlegs.y > 710: # Termination condition
             game_play = 0
@@ -99,11 +96,11 @@ def game():
         for i, platform in enumerate(platforms):
             if platform.image == "platform2":
                 if platformDirection[i] == 0:
-                    platform.x += 5 * (xdiff/5)
+                    platform.x += 5 * (xdiff/20)
                     if platform.x > 980:
                         platformDirection[i] = 1
                 else:
-                    platform.x -= 5 * (xdiff/5)
+                    platform.x -= 5 * (xdiff/20)
                     if platform.x < 20:
                         platformDirection[i] = 0  
 
@@ -120,14 +117,17 @@ def game():
                         score += 1
                         touched[i] = 1
                     if platform.image == "platform3":
-                        animate(platform, tween = 'out_elastic', pos=(platform.x, 1000))
-        if playerlegs.y < 0:
-            if xdiff < 13:
+                        animate(platform, tween = 'out_elastic', pos=(-100, 400))
+        if playerlegs.y < 350 and not wait:
+            wait = True
+            if xdiff < 100:
                 xdiff += 1
-            refresh()
+            scroll()
+        else:
+            wait = False
 
 def refresh():
-    global yvelo
+    global yvelo, xspawn, yspawn
 
     playerlegs.y = 700
     yvelo = -6
@@ -142,14 +142,29 @@ def refresh():
         platform.pos = xspawn[i], yspawn[i]
     
     platforms[0].x = playerlegs.x # easy transition
-    if xdiff >= 6:
+    if xdiff >= 50:
         for platform in platforms:
-            if not random.randint(0, 15 - xdiff): # chance of broken
+            if not random.randint(0, 101 - xdiff): # chance of broken
                 platform.image = "platform3"
-    elif xdiff >= 3:
+    elif xdiff >= 25:
         for platform in platforms:
-            if not random.randint(0, 15 - xdiff): # chance of moving
+            if not random.randint(0, 120 - xdiff): # chance of moving
                 platform.image = "platform2"
+
+def scroll():
+    global yvelo, xspawn, yspawn
+
+    for i, platform in enumerate(platforms): 
+        platform.y += 3
+        if platform.y > 710:
+            if xdiff >= 50 and not random.randint(0, 101 - xdiff): # chance of broken
+                platform.image = "platform3"
+            elif xdiff >= 30 and not random.randint(0, 120 - xdiff): # chance of moving
+                platform.image = "platform2"
+            newx = random.randint(50, 950)
+            newy = platforms[-1].y - random.randint(80, 95)
+            platform.pos = newx, newy
+            platforms.append(platforms.pop(i))
 
 def draw():
     global playerlegs, player, red, blue, green, cycle
